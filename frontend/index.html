@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureAuth - Test Authentication System</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SecureAuth</h1>
+            <p>Authentication with JWT & Role-Based Access Control</p>
+        </div>
+
+        <!-- Message display area -->
+        <div id="messageArea"></div>
+
+        <!-- Authentication section -->
+        <div id="authSection" class="auth-section">
+            <div class="glass-container">
+                <div class="auth-tabs">
+                    <div class="tab-indicator" id="tabIndicator"></div>
+                    <button id="loginTab" class="tab-button active" onclick="showLoginForm()">Sign In</button>
+                    <button id="registerTab" class="tab-button" onclick="showRegisterForm()">Create Account</button>
+                </div>
+
+                <!-- Login Form -->
+                <div id="loginForm" class="auth-form">
+                    <div class="sample-credentials">
+                        <strong>Demo Credentials:</strong><br>
+                        Admin: alice@example.com / Password123<br>
+                        User: bob@example.com / Password123
+                    </div>
+
+                    <form id="loginFormElement">
+                        <div class="form-group">
+                            <label class="form-label" for="loginEmail">Email Address</label>
+                            <input type="email" id="loginEmail" class="form-input" required 
+                                   placeholder="Enter your email address">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" class="form-input" required 
+                                   placeholder="Enter your password">
+                        </div>
+                        
+                        <button type="submit" class="btn" id="loginBtn">
+                            <span id="loginBtnText">Sign In</span>
+                            <span id="loginSpinner" class="loading hidden"></span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Register Form -->
+                <div id="registerForm" class="auth-form hidden">
+                    <form id="registerFormElement">
+                        <div class="form-group">
+                            <label class="form-label" for="registerName">Full Name</label>
+                            <input type="text" id="registerName" class="form-input" required 
+                                   placeholder="Enter your full name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="registerEmail">Email Address</label>
+                            <input type="email" id="registerEmail" class="form-input" required 
+                                   placeholder="Enter your email address">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label" for="registerPassword">Password</label>
+                            <input type="password" id="registerPassword" class="form-input" required 
+                                   placeholder="Create a strong password">
+                            <small class="password-requirements">
+                                Must include: 8+ characters, uppercase, lowercase, and number
+                            </small>
+                        </div>
+                        
+                        <button type="submit" class="btn" id="registerBtn">
+                            <span id="registerBtnText">Create Account</span>
+                            <span id="registerSpinner" class="loading hidden"></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- User dashboard -->
+        <div id="userDashboard" class="hidden">
+            <div class="dashboard">
+                <div class="user-info glass-container">
+                    <h3>Welcome Back!</h3>
+                    <div id="userDetails"></div>
+                    <button class="btn btn-danger" onclick="logout()" style="margin-top: 1rem;">Sign Out</button>
+                </div>
+            </div>
+
+            <!-- Protected content sections -->
+            <div class="protected-section glass-container">
+                <h3>Protected Resources</h3>
+                <p>This content is only accessible to authenticated users. It demonstrates JWT token-based protection.</p>
+                <button class="btn btn-secondary" onclick="loadProducts()" style="margin-top: 1rem;">Load Products</button>
+                <div id="productsContainer"></div>
+            </div>
+
+            <!-- Admin section -->
+            <div id="adminSection" class="admin-section glass-container hidden">
+                <h3>Administrator Panel</h3>
+                <p>This section requires admin privileges and demonstrates role-based access control.</p>
+                <button class="btn btn-secondary" onclick="loadAdminData()" style="margin-top: 1rem;">Access Admin Data</button>
+                <div id="adminContent"></div>
+            </div>
+        </div>
+
+        <!-- Connection status -->
+        <div class="protected-section glass-container">
+            <h3>System Status</h3>
+            <p>Backend API: <code style="color: var(--neon-blue);">http://localhost:8080</code></p>
+            <button class="btn btn-secondary" onclick="testConnection()">Test Connection</button>
+            <div id="connectionStatus" style="margin-top: 1rem;"></div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

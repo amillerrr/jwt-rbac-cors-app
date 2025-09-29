@@ -1,0 +1,18 @@
+# Environment variables (never commit secrets!)
+.env
+.env.local
+.env.production
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# Log files
+*.log
+
+# Database dumps
+*.sql.gz
+*.dump
+
