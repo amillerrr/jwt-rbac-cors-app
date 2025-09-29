@@ -11,7 +11,7 @@ COPY . .
 
 RUN go build -o goapp cmd/server/main.go 
 
-FROM debian:slim AS runner
+FROM bookworm-slim:latest AS runner
 
 WORKDIR /app
 
