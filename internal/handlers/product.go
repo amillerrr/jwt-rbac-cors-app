@@ -86,7 +86,14 @@ func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 
 	// Return product as JSON
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(product)
+	if err := json.NewEncoder(w).Encode(product); err != nil {
+		h.logger.Error("Failed to encode JSON response",
+			slog.String("error", err.Error()),
+			slog.String("handler", "GetProduct"),
+		)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 // GetMyProducts returns products created by the current user
@@ -130,10 +137,17 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{
+	if err := json.NewEncoder(w).Encode(map[string]string{
 		"message": "Product creation endpoint - implementation pending",
 		"status":  "placeholder",
-	})
+	}); err != nil {
+		h.logger.Error("Failed to encode JSON response",
+			slog.String("error", err.Error()),
+			slog.String("handler", "CreateProduct"),
+		)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
@@ -143,10 +157,17 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
+	if err := json.NewEncoder(w).Encode(map[string]string{
 		"message": "Product update endpoint - implementation pending",
 		"status":  "placeholder",
-	})
+	}); err != nil {
+		h.logger.Error("Failed to encode JSON response",
+			slog.String("error", err.Error()),
+			slog.String("handler", "UpdateProduct"),
+		)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
@@ -156,8 +177,15 @@ func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
+	if err := json.NewEncoder(w).Encode(map[string]string{
 		"message": "Product deletion endpoint - implementation pending",
 		"status":  "placeholder",
-	})
+	}); err != nil {
+		h.logger.Error("Failed to encode JSON response",
+			slog.String("error", err.Error()),
+			slog.String("handler", "DeleteProduct"),
+		)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
