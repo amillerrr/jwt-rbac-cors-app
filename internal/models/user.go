@@ -157,7 +157,7 @@ func (r *UserRepository) Create(user *User) error {
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	// Insert the user
 	query := `

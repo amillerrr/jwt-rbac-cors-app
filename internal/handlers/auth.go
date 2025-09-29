@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"log/slog"
 
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/auth"
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/models"
@@ -17,15 +18,17 @@ type AuthHandler struct {
 	userRepo   *models.UserRepository
 	jwtService *auth.JWTService
 	middleware *auth.Middleware
+	logger     *slog.Logger
 }
 
 // NewAuthHandler creates a new authentication handler
-func NewAuthHandler(db *sql.DB, jwtSecret string) *AuthHandler {
+func NewAuthHandler(db *sql.DB, jwtSecret string, logger *slog.Logger) *AuthHandler {
 	jwtService := auth.NewJWTService(jwtSecret)
 	return &AuthHandler{
 		userRepo:   models.NewUserRepository(db),
 		jwtService: jwtService,
 		middleware: auth.NewMiddleware(jwtService),
+		logger: logger,
 	}
 }
 
@@ -68,8 +71,10 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	// Update last login timestamp
 	if err := h.userRepo.UpdateLastLogin(user.ID); err != nil {
-		// Log error but don't fail the login
-		// In production, you'd use a proper logger here
+		h.logger.Error("Failed to update last login timestamp",
+			slog.String("error", err.Error()),
+			slog.String("handler", "Login"),
+		)
 	}
 
 	// Generate JWT token
@@ -88,7 +93,14 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// Send response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		h.logger.Error("Failed to encode JSON response",
+			slog.String("error", err.Error()),
+			slog.String("handler", "Login"),
+		)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 // Register handles user registration

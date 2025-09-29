@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"log/slog"
 
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/auth"
 )
@@ -11,12 +12,14 @@ import (
 // AdminHandler handles admin-only HTTP requests
 type AdminHandler struct {
 	db *sql.DB
+	logger *slog.Logger
 }
 
 // NewAdminHandler creates a new admin handler
-func NewAdminHandler(db *sql.DB) *AdminHandler {
+func NewAdminHandler(db *sql.DB, logger *slog.Logger) *AdminHandler {
 	return &AdminHandler{
 		db: db,
+		logger: logger,
 	}
 }
 
@@ -49,7 +52,14 @@ func (h *AdminHandler) GetAdminData(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		h.logger.Error("Failed to encode JSON response",
+			slog.String("error", err.Error()),
+			slog.String("handler", "GetAdminData"),
+		)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 // GetSystemStats returns system statistics (admin only)
@@ -77,7 +87,14 @@ func (h *AdminHandler) GetSystemStats(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(stats)
+	if err := json.NewEncoder(w).Encode(stats); err != nil {
+		h.logger.Error("Failed to encode JSON response",
+			slog.String("error", err.Error()),
+			slog.String("handler", "GetSystemStats"),
+		)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 // GetAllUsers returns all users (admin only)
@@ -130,7 +147,14 @@ func (h *AdminHandler) GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(users)
+	if err := json.NewEncoder(w).Encode(users); err != nil {
+		h.logger.Error("Failed to encode JSON response",
+			slog.String("error", err.Error()),
+			slog.String("handler", "GetAllUsers"),
+		)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 // Helper functions for gathering statistics

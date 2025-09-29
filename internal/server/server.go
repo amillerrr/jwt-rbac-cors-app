@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"log/slog"
 
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/config"
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/handlers"
@@ -53,9 +54,9 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) setupRoutes() {
-	authHandler := handlers.NewAuthHandler(s.db, s.config.JWT.Secret)
-	productHandler := handlers.NewProductHandler(s.db)
-	adminHandler := handlers.NewAdminHandler(s.db)
+	authHandler := handlers.NewAuthHandler(s.db, s.config.JWT.Secret, s.monitor.Logger)
+	productHandler := handlers.NewProductHandler(s.db, s.monitor.Logger)
+	adminHandler := handlers.NewAdminHandler(s.db, s.monitor.Logger)
 
 	s.router.HandleFunc("/", corsMiddleware(s.serveStaticFiles))
 	s.router.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("frontend/css/"))))
@@ -95,7 +96,14 @@ func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"status": "healthy", "message": "Backend server is running"}`))
+	if _, err := w.Write([]byte(`{"status": "healthy", "message": "Backend server is running"}`)); err != nil {
+		if s.monitor != nil && s.monitor.Logger != nil {
+			s.monitor.Logger.Error("Failed to write health check response",
+				slog.String("error", err.Error()),
+			)
+		}
+		return
+	}
 }
 
 func (s *Server) serveStaticFiles(w http.ResponseWriter, r *http.Request) {

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"log/slog"
 
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/auth"
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/models"
@@ -14,12 +15,14 @@ import (
 // ProductHandler handles product-related HTTP requests
 type ProductHandler struct {
 	productRepo *models.ProductRepository
+	logger *slog.Logger
 }
 
 // NewProductHandler creates a new product handler
-func NewProductHandler(db *sql.DB) *ProductHandler {
+func NewProductHandler(db *sql.DB, logger *slog.Logger) *ProductHandler {
 	return &ProductHandler{
 		productRepo: models.NewProductRepository(db),
+		logger: logger,
 	}
 }
 
@@ -40,7 +43,14 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	// Return products as JSON
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(products)
+	if err := json.NewEncoder(w).Encode(products); err != nil {
+		h.logger.Error("Failed to encode JSON response",
+			slog.String("error", err.Error()),
+			slog.String("handler", "GetProducts"),
+		)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 // GetProduct returns a specific product by ID
@@ -51,7 +61,6 @@ func (h *ProductHandler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Extract product ID from URL path
-	// This is a simple approach - in production you'd use a router like gorilla/mux
 	path := strings.TrimPrefix(r.URL.Path, "/products/")
 	if path == "" {
 		http.Error(w, "Product ID required", http.StatusBadRequest)
@@ -101,9 +110,15 @@ func (h *ProductHandler) GetMyProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return products as JSON
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(products)
+	if err := json.NewEncoder(w).Encode(products); err != nil {
+		h.logger.Error("Failed to encode JSON response",
+			slog.String("error", err.Error()),
+			slog.String("handler", "GetMyProducts"),
+		)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 // CreateProduct creates a new product (authenticated users only)
@@ -113,8 +128,6 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// This would be implemented in a more complete application
-	// For now, we'll return a placeholder response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{
@@ -123,14 +136,12 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// UpdateProduct updates an existing product
 func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "PUT" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// This would be implemented in a more complete application
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "Product update endpoint - implementation pending",
@@ -138,14 +149,12 @@ func (h *ProductHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// DeleteProduct deletes a product (soft delete by setting is_active = false)
 func (h *ProductHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// This would be implemented in a more complete application
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "Product deletion endpoint - implementation pending",
