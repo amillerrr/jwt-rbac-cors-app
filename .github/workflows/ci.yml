@@ -64,7 +64,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.2.4
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: ghcr.io/amillerrr/jwt-rbac-cors-app:latest  
           severity: 'CRITICAL,HIGH'
