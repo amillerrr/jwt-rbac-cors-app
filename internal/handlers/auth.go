@@ -122,10 +122,17 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	if validationErrors.HasErrors() {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		if err := json.NewEncoder(w).Encode(map[string]interface{}{
 			"error": "Validation failed",
 			"details": validationErrors,
-		})
+		}); err != nil {
+			h.logger.Error("Failed to encode JSON response",
+			slog.String("error", err.Error()),
+			slog.String("handler", "Register.emailExists"),
+		)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+		}
 		return
 	}
 
@@ -138,12 +145,19 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	if emailExists {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusConflict)
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		if err := json.NewEncoder(w).Encode(map[string]interface{}{
 			"error": "Email already registered",
 			"details": []validator.ValidationError{
 				{Field: "email", Message: "An account with this email already exists"},
 			},
-		})
+		}); err != nil {
+			h.logger.Error("Failed to encode JSON response",
+			slog.String("error", err.Error()),
+			slog.String("handler", "Register.emailExists"),
+		)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+		}
 		return
 	}
 
@@ -185,7 +199,14 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	// Send response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		h.logger.Error("Failed to encode JSON response",
+			slog.String("error", err.Error()),
+			slog.String("handler", "Register"),
+		)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 // RefreshToken handles token refresh requests
@@ -219,7 +240,14 @@ func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 	// Send new token
 	response := map[string]string{"token": newToken}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		h.logger.Error("Failed to encode JSON response",
+			slog.String("error", err.Error()),
+			slog.String("handler", "RefreshToken"),
+		)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 // GetProfile returns the current user's profile
@@ -249,7 +277,14 @@ func (h *AuthHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 
 	// Return user profile
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(user)
+	if err := json.NewEncoder(w).Encode(user); err != nil {
+		h.logger.Error("Failed to encode JSON response",
+			slog.String("error", err.Error()),
+			slog.String("handler", "GetProfile"),
+		)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 }
 
 // RequireAuth wraps handlers that require authentication
