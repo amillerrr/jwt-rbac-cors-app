@@ -1,0 +1,13 @@
+apiVersion: 1
+
+providers:
+  - name: 'Auth App Dashboards'
+    orgId: 1
+    folder: 'Authentication System'
+    type: file
+    disableDeletion: false  # Allow deleting dashboards through UI
+    updateIntervalSeconds: 10  # How often to check for dashboard changes
+    allowUiUpdates: true  # Allow editing dashboards through UI
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: true
