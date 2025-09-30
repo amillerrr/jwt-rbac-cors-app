@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"database/sql"
 	"encoding/json"
+	"database/sql"
 	"net/http"
 	"strings"
 	"log/slog"
@@ -10,9 +10,9 @@ import (
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/auth"
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/models"
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/monitoring"
+	"github.com/amillerrr/jwt-rbac-cors-app/internal/database"
 	"github.com/amillerrr/jwt-rbac-cors-app/pkg/crypto"
 	"github.com/amillerrr/jwt-rbac-cors-app/pkg/validator"
-	"github.com/amillerrr/jwt-rbac-cors-app/internal/database"
 )
 
 // AuthHandler handles authentication-related HTTP requests

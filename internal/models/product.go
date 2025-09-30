@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/database"

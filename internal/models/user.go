@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -43,7 +42,7 @@ type CreateUserRequest struct {
 
 // UserRepository handles database operations for users
 type UserRepository struct {
-	db *sql.DB
+	db database.DB
 }
 
 // NewUserRepository creates a new user repository
