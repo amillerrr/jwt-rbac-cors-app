@@ -3,6 +3,8 @@ package models
 import (
 	"database/sql"
 	"time"
+
+	"github.com/amillerrr/jwt-rbac-cors-app/internal/database"
 )
 
 // Product represents a product in the system
@@ -19,11 +21,11 @@ type Product struct {
 
 // ProductRepository handles database operations for products
 type ProductRepository struct {
-	db *sql.DB
+	db database.DB
 }
 
 // NewProductRepository creates a new product repository
-func NewProductRepository(db *sql.DB) *ProductRepository {
+func NewProductRepository(db database.DB) *ProductRepository {
 	return &ProductRepository{db: db}
 }
 

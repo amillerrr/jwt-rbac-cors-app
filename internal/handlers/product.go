@@ -10,6 +10,7 @@ import (
 
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/auth"
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/models"
+	"github.com/amillerrr/jwt-rbac-cors-app/internal/database"
 )
 
 // ProductHandler handles product-related HTTP requests
@@ -19,7 +20,7 @@ type ProductHandler struct {
 }
 
 // NewProductHandler creates a new product handler
-func NewProductHandler(db *sql.DB, logger *slog.Logger) *ProductHandler {
+func NewProductHandler(db database.DB, logger *slog.Logger) *ProductHandler {
 	return &ProductHandler{
 		productRepo: models.NewProductRepository(db),
 		logger: logger,

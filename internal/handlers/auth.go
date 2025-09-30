@@ -9,8 +9,10 @@ import (
 
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/auth"
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/models"
+	"github.com/amillerrr/jwt-rbac-cors-app/internal/monitoring"
 	"github.com/amillerrr/jwt-rbac-cors-app/pkg/crypto"
 	"github.com/amillerrr/jwt-rbac-cors-app/pkg/validator"
+	"github.com/amillerrr/jwt-rbac-cors-app/internal/database"
 )
 
 // AuthHandler handles authentication-related HTTP requests
@@ -19,16 +21,18 @@ type AuthHandler struct {
 	jwtService *auth.JWTService
 	middleware *auth.Middleware
 	logger     *slog.Logger
+	metrics    *monitoring.Metrics
 }
 
 // NewAuthHandler creates a new authentication handler
-func NewAuthHandler(db *sql.DB, jwtSecret string, logger *slog.Logger) *AuthHandler {
+func NewAuthHandler(db database.DB, jwtSecret string, logger *slog.Logger, metrics *monitoring.Metrics) *AuthHandler {
 	jwtService := auth.NewJWTService(jwtSecret)
 	return &AuthHandler{
 		userRepo:   models.NewUserRepository(db),
 		jwtService: jwtService,
 		middleware: auth.NewMiddleware(jwtService),
 		logger: logger,
+		metrics: metrics,
 	}
 }
 
@@ -83,6 +87,9 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error generating token", http.StatusInternalServerError)
 		return
 	}
+
+	h.metrics.LoginSuccesses.Inc()  // Add this
+	h.metrics.LoginAttempts.WithLabelValues("success").Inc()
 
 	// Prepare response
 	response := models.LoginResponse{

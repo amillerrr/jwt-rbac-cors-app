@@ -7,16 +7,17 @@ import (
 	"log/slog"
 
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/auth"
+	"github.com/amillerrr/jwt-rbac-cors-app/internal/database"
 )
 
 // AdminHandler handles admin-only HTTP requests
 type AdminHandler struct {
-	db *sql.DB
+	db database.DB
 	logger *slog.Logger
 }
 
 // NewAdminHandler creates a new admin handler
-func NewAdminHandler(db *sql.DB, logger *slog.Logger) *AdminHandler {
+func NewAdminHandler(db database.DB, logger *slog.Logger) *AdminHandler {
 	return &AdminHandler{
 		db: db,
 		logger: logger,

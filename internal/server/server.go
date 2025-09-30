@@ -1,7 +1,6 @@
 package server
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 	"os"
@@ -10,21 +9,22 @@ import (
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/config"
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/handlers"
 	"github.com/amillerrr/jwt-rbac-cors-app/internal/monitoring"
+	"github.com/amillerrr/jwt-rbac-cors-app/internal/database"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Server struct {
 	config  *config.Config
-	db      *sql.DB
+	db      database.DB
 	router  *http.ServeMux
 	monitor *monitoring.Monitor
 }
 
-func New(cfg *config.Config, db *sql.DB) *Server {
+func New(cfg *config.Config, db database.DB) *Server {
 	return NewWithMonitoring(cfg, db, nil)
 }
 
-func NewWithMonitoring(cfg *config.Config, db *sql.DB, monitor *monitoring.Monitor) *Server {
+func NewWithMonitoring(cfg *config.Config, db database.DB, monitor *monitoring.Monitor) *Server {
 	s := &Server{
 		config:  cfg,
 		db:      db,
@@ -54,7 +54,7 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) setupRoutes() {
-	authHandler := handlers.NewAuthHandler(s.db, s.config.JWT.Secret, s.monitor.Logger)
+	authHandler := handlers.NewAuthHandler(s.db, s.config.JWT.Secret, s.monitor.Logger, s.monitor.Metrics)
 	productHandler := handlers.NewProductHandler(s.db, s.monitor.Logger)
 	adminHandler := handlers.NewAdminHandler(s.db, s.monitor.Logger)
 

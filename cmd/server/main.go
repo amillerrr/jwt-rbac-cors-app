@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"log"
 	"log/slog"
 	"os"
@@ -58,14 +57,16 @@ func main() {
 	}
 	defer db.Close()
 
+	instrumentedDB := database.NewInstrumentedDB(db, monitor.Metrics)
+
 	monitor.Logger.Info("Database connection established successfully",
 		slog.String("host", cfg.Database.Host),
 		slog.Int("port", cfg.Database.Port),
 	)
 
-	go updateBusinessMetrics(ctx, db, monitor)
+	go updateBusinessMetrics(ctx, instrumentedDB, monitor)
 
-	srv := server.NewWithMonitoring(cfg, db, monitor)
+	srv := server.NewWithMonitoring(cfg, instrumentedDB, monitor)
 	
 	monitor.Logger.Info("Starting HTTP server",
 		slog.String("port", cfg.Server.Port),
@@ -96,7 +97,7 @@ func main() {
 	monitor.Logger.Info("Application shutdown complete")
 }
 
-func updateBusinessMetrics(ctx context.Context, db *sql.DB, monitor *monitoring.Monitor) {
+func updateBusinessMetrics(ctx context.Context, db database.DB, monitor *monitoring.Monitor) {
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 
@@ -112,7 +113,7 @@ func updateBusinessMetrics(ctx context.Context, db *sql.DB, monitor *monitoring.
 	}
 }
 
-func updateMetrics(ctx context.Context, db *sql.DB, monitor *monitoring.Monitor) {
+func updateMetrics(ctx context.Context, db database.DB, monitor *monitoring.Monitor) {
 	defer monitor.TraceSpan(ctx, "update_business_metrics")()
 
 	var totalUsers int

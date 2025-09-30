@@ -5,10 +5,15 @@ import (
 	"database/sql"
 )
 
-// DB defines the interface for database operations needed by monitoring
-// This interface allows us to work with *sql.DB without tight coupling
+// DB defines the interface for database operations
 type DB interface {
 	QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
+	QueryRow(query string, args ...interface{}) *sql.Row
+	Query(query string, args ...interface{}) (*sql.Rows, error)
+	QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
+	Exec(query string, args ...interface{}) (sql.Result, error)
+	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+	Begin() (*sql.Tx, error)
 	Stats() sql.DBStats
 	Ping() error
 	Close() error

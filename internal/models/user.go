@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
+
+	"github.com/amillerrr/jwt-rbac-cors-app/internal/database"
 )
 
 // User represents a user in the system
@@ -45,7 +47,7 @@ type UserRepository struct {
 }
 
 // NewUserRepository creates a new user repository
-func NewUserRepository(db *sql.DB) *UserRepository {
+func NewUserRepository(db database.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
